@@ -60,10 +60,8 @@ class wikijs_tool:
                 headers=headers,
                 json={'query': query}
             )
-
             # 检查 HTTP 状态码
-            response.raise_for_status()
-
+            # response.raise_for_status()
             data = response.json()
 
             # 处理 GraphQL 错误
