@@ -14,24 +14,42 @@ class wikijs_tool:
             return f'"{value}"'
         if isinstance(value, list):
             return f'[{", ".join(self.__format_graphql_value(v) for v in value)}]'
-        return str(value)
 
-    def create_page(self, title, content, description, path, tags, editor="markdown", isPublished=True, isPrivate=False,
-                    locale="zh"):
+    def __build_params(self, fields_order, params):
+        args = []
+        for field in fields_order:
+            # 只有当参数存在且不为None时才添加
+            if field in params and params[field] is not None:
+                value = self.__format_graphql_value(params[field])
+                args.append(f"{field}: {value}")
+        return ',\n      '.join(args)
+
+    def create_page(self, **params):
+
+        fields_order = [
+            'content',
+            'description',
+            'editor',
+            'isPublished',
+            'isPrivate',
+            'locale',
+            'path',
+            'tags',
+            'title',
+            'scriptCss',  # 新增参数
+            'scriptJs'  # 新增参数
+        ]
+        params.setdefault('editor', "markdown")
+        params.setdefault('isPublished', True)
+        params.setdefault('isPrivate', False)
+        params.setdefault('locale', "zh")
 
         query = f"""
                 mutation Page {{
                   pages {{
                     create (
-                    content: {self.__format_graphql_value(content)}, 
-                    description:{self.__format_graphql_value(description)}, 
-                    editor: {self.__format_graphql_value(editor)}, 
-                    isPublished: {self.__format_graphql_value(isPublished)}, 
-                    isPrivate: {self.__format_graphql_value(isPrivate)}, 
-                    locale: {self.__format_graphql_value(locale)}, 
-                    path:{self.__format_graphql_value(path)}, 
-                    tags: {self.__format_graphql_value(tags)}, 
-                    title:{self.__format_graphql_value(title)}) {{
+                      {self.__build_params(fields_order, params)}
+                    ){{
                       responseResult {{
                         succeeded,
                         errorCode,
