@@ -1,5 +1,5 @@
 import requests
-
+import json
 
 class wikijs_tool:
     def __init__(self, token, url) -> None:
@@ -11,7 +11,8 @@ class wikijs_tool:
         if isinstance(value, bool):
             return "true" if value else "false"
         if isinstance(value, str):
-            return f'"{value}"'
+            value=json.dumps(value,ensure_ascii=False)
+            return f'{value}'
         if isinstance(value, list):
             return f'[{", ".join(self.__format_graphql_value(v) for v in value)}]'
 
